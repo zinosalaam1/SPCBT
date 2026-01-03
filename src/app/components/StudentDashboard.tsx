@@ -76,16 +76,15 @@ export function StudentDashboard({ user, onLogout }: StudentDashboardProps) {
   }, [currentExam, timeRemaining, isExamSubmitted]);
 
 const loadData = async () => {
-  if (!user?._id) return;
-
   const [e, a] = await Promise.all([
     getActiveExams(),
     getStudentAttempts(user._id),
   ]);
 
   setExams(e);
-  setAttempts(a);
+  setAttempts(Array.isArray(a) ? a : []);
 };
+
 
 
   const handleStartExam = async (exam: Exam) => {

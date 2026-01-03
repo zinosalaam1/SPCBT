@@ -81,6 +81,11 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
   });
 
   useEffect(() => {
+    console.log('ADMIN ATTEMPTS:', attempts);
+  }, [attempts]);
+
+
+  useEffect(() => {
     loadData().catch(console.error);
   }, []);
 
@@ -96,12 +101,15 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
       setQuestions(q);
       setExams(e);
       setStudents(u.filter((u: User) => u.role === 'student'));
-      setAttempts(a);
+      setAttempts(Array.isArray(a) ? a : a?.attempts ?? []);
+
     } catch (err) {
       console.error('Error loading data:', err);
     }
   };
 
+
+  
   // ---------------- QUESTIONS ----------------
   const handleCreateQuestion = async () => {
     try {
@@ -210,6 +218,13 @@ const handleDeleteExam = async (id: string) => {
     return;
   }
 
+  const hasAttempts = attempts.some((a) => a.examId === id);
+
+  if (hasAttempts) {
+    alert('You cannot delete an exam that already has student attempts.');
+    return;
+  }
+
   if (!confirm('Are you sure you want to delete this exam?')) return;
 
   try {
@@ -220,6 +235,7 @@ const handleDeleteExam = async (id: string) => {
     alert('Failed to delete exam');
   }
 };
+
 
 
   // ---------------- STUDENTS ----------------
@@ -262,22 +278,25 @@ const handleDeleteStudent = async (id: string) => {
 };
 
   // ---------------- STATS ----------------
-  const stats = {
-    totalQuestions: questions.length,
-    totalExams: exams.length,
-    activeExams: exams.filter((e) => e.isActive).length,
-    totalStudents: students.length,
-    totalAttempts: attempts.length,
-    averageScore:
-      attempts.length > 0
-        ? Math.round(
-            attempts.reduce((sum, a) => {
-              if (!a.totalQuestions) return sum;
-              return sum + (a.score / a.totalQuestions) * 100;
-            }, 0) / attempts.length
-          )
-        : 0,
-  };
+const validAttempts = attempts.filter(a => a.totalQuestions > 0);
+
+const stats = {
+  totalQuestions: questions.length,
+  totalExams: exams.length,
+  activeExams: exams.filter((e) => e.isActive).length,
+  totalStudents: students.length,
+  totalAttempts: attempts.length,
+  averageScore:
+    validAttempts.length > 0
+      ? Math.round(
+          validAttempts.reduce(
+            (sum, a) => sum + (a.score / a.totalQuestions) * 100,
+            0
+          ) / validAttempts.length
+        )
+      : 0,
+};
+
 
   const filteredQuestions = questions.filter((q) => {
     const matchesSearch =
@@ -287,6 +306,9 @@ const handleDeleteStudent = async (id: string) => {
       selectedDifficulty === 'all' || q.difficulty === selectedDifficulty;
     return matchesSearch && matchesDifficulty;
   });
+
+
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Header */}

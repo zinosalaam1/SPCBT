@@ -1,24 +1,33 @@
 import api from '../services/api';
 
-/* Create / submit an exam attempt */
+/* ===============================
+   Student submits an exam
+================================ */
 export const createAttempt = async (payload: any) => {
   const { data } = await api.post('/attempts', payload);
   return data.attempt;
 };
 
-/* Logged-in student's own attempts */
-export const getMyAttempts = async (studentId: string) => {
-  const { data } = await api.get(`/attempts/student/${studentId}`);
+/* ===============================
+   STUDENT: get own attempts
+   (ID comes from JWT, not URL)
+================================ */
+export const getMyAttempts = async () => {
+  const { data } = await api.get('/attempts/student');
   return data.attempts;
 };
 
-/* ✅ ADMIN: get attempts for a specific student */
+/* ===============================
+   ADMIN: get attempts for ONE student
+================================ */
 export const getStudentAttempts = async (studentId: string) => {
   const { data } = await api.get(`/attempts/student/${studentId}`);
   return data.attempts;
 };
 
-/* ✅ ADMIN: get all attempts (dashboard overview) */
+/* ===============================
+   ADMIN: get ALL attempts
+================================ */
 export const getAllAttempts = async () => {
   const { data } = await api.get('/attempts');
   return data.attempts;
