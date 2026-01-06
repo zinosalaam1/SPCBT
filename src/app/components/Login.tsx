@@ -6,7 +6,7 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Card } from './ui/card';
 import { User as UserType } from '../types';
-import { login } from '../services/auth';
+import { loginRequest, saveAuth } from '../services/auth';
 
 interface LoginProps {
   onLogin: (user: UserType) => void;
@@ -24,19 +24,15 @@ export function Login({ onLogin }: LoginProps) {
     setIsLoading(true);
 
     try {
-      const data = await login(username, password);
+      const data = await loginRequest(username, password);
 
-// save token if needed
-      localStorage.setItem("token", data.token);
+      // ✅ Save JWT + user
+      saveAuth(data.token, data.user);
 
-// pass ONLY the user object
+      // ✅ Update app state
       onLogin(data.user);
-
     } catch (err: any) {
-      setError(
-        err?.response?.data?.message ||
-          'Invalid credentials. Please try again.'
-      );
+      setError(err?.response?.data?.message || 'Invalid credentials. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -112,118 +108,59 @@ export function Login({ onLogin }: LoginProps) {
         </motion.div>
 
         {/* Login Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
           <Card className="p-8 backdrop-blur-xl bg-white/95 shadow-2xl border-0">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="username" className="text-gray-700">
-                  Username
-                </Label>
+                <Label htmlFor="username">Username</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <Input
                     id="username"
-                    type="text"
-                    placeholder="Enter your username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="pl-10 h-12 bg-white border-gray-200"
+                    className="pl-10 h-12"
                     required
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-gray-700">
-                  Password
-                </Label>
+                <Label htmlFor="password">Password</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <Input
                     id="password"
                     type="password"
-                    placeholder="Enter your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 h-12 bg-white border-gray-200"
+                    className="pl-10 h-12"
                     required
                   />
                 </div>
               </div>
 
               {error && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm"
-                >
+                <motion.div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
                   {error}
                 </motion.div>
               )}
 
-              <Button
-                type="submit"
-                className="w-full h-12 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                  >
-                    <LogIn className="w-5 h-5" />
-                  </motion.div>
-                ) : (
-                  <>
-                    <LogIn className="w-5 h-5 mr-2" />
-                    Sign In
-                  </>
-                )}
+              <Button type="submit" className="w-full h-12" disabled={isLoading}>
+                {isLoading ? <LogIn className="animate-spin" /> : 'Sign In'}
               </Button>
 
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-200" />
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-white text-gray-500">Quick Login</span>
-                </div>
-              </div>
-
               <div className="grid grid-cols-2 gap-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => quickLogin('admin')}
-                  className="border-2 border-indigo-200 hover:bg-indigo-50"
-                >
+                <Button type="button" variant="outline" onClick={() => quickLogin('admin')}>
                   👨‍💼 Admin
                 </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => quickLogin('student')}
-                  className="border-2 border-purple-200 hover:bg-purple-50"
-                >
+                <Button type="button" variant="outline" onClick={() => quickLogin('student')}>
                   👨‍🎓 Student
                 </Button>
               </div>
             </form>
           </Card>
         </motion.div>
-
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="text-center text-white/80 mt-6 text-sm"
-        >
-          © 2025 Sp-Tech. All rights reserved.
-        </motion.p>
       </motion.div>
     </div>
   );

@@ -1,52 +1,59 @@
-// Types for the CBT Application
+// Types for the CBT Application (API + MongoDB aligned)
 
+/* ---------------- USER ---------------- */
 export interface User {
-  id: string;
+  _id: string;
   username: string;
-  password: string;
   role: 'admin' | 'student';
   name: string;
   email: string;
   createdAt: string;
 }
 
+/* ---------------- QUESTION ---------------- */
 export interface Question {
-  id: string;
+  _id: string;
   question: string;
   options: string[];
   correctAnswer: number;
   subject: string;
   difficulty: 'easy' | 'medium' | 'hard';
   createdAt: string;
-  createdBy: string;
+  createdBy: string; // admin _id
 }
 
+/* ---------------- EXAM ---------------- */
 export interface Exam {
-  id: string;
+  _id: string;
   title: string;
   subject: string;
-  duration: number; // in minutes
-  questions: string[]; // question IDs
+  duration: number; // minutes
+  questions: string[]; // question _ids
   totalMarks: number;
   passingMarks: number;
-  createdAt: string;
-  createdBy: string;
   isActive: boolean;
+  createdAt: string;
+  createdBy: string; // admin _id
 }
 
+/* ---------------- EXAM ATTEMPT ---------------- */
 export interface ExamAttempt {
-  id: string;
+  _id: string;
   examId: string;
   studentId: string;
-  answers: { questionId: string; answer: number }[];
+  answers: {
+    questionId: string;
+    answer: number;
+  }[];
   score: number;
   totalQuestions: number;
   correctAnswers: number;
   startedAt: string;
   submittedAt: string;
-  timeTaken: number; // in seconds
+  timeTaken: number; // seconds
 }
 
+/* ---------------- STUDENT STATS ---------------- */
 export interface StudentStats {
   totalExams: number;
   completedExams: number;

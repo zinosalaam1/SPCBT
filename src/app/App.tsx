@@ -4,7 +4,7 @@ import { Login } from './components/Login';
 import { AdminDashboard } from './components/AdminDashboard';
 import { StudentDashboard } from './components/StudentDashboard';
 import { Toaster } from './components/ui/sonner';
-import { initializeStorage, getCurrentUser, logout } from './utils/storage';
+import { getAuthUser, clearAuth } from './services/auth';
 import { User } from './types';
 
 export default function App() {
@@ -12,11 +12,7 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Initialize storage with demo data
-    initializeStorage();
-    
-    // Check if user is already logged in
-    const user = getCurrentUser();
+    const user = getAuthUser();
     setCurrentUser(user);
     setIsLoading(false);
   }, []);
@@ -26,7 +22,7 @@ export default function App() {
   };
 
   const handleLogout = () => {
-    logout();
+    clearAuth();
     setCurrentUser(null);
   };
 
@@ -48,30 +44,15 @@ export default function App() {
     <>
       <AnimatePresence mode="wait">
         {!currentUser ? (
-          <motion.div
-            key="login"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
+          <motion.div key="login">
             <Login onLogin={handleLogin} />
           </motion.div>
         ) : currentUser.role === 'admin' ? (
-          <motion.div
-            key="admin"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
+          <motion.div key="admin">
             <AdminDashboard user={currentUser} onLogout={handleLogout} />
           </motion.div>
         ) : (
-          <motion.div
-            key="student"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
+          <motion.div key="student">
             <StudentDashboard user={currentUser} onLogout={handleLogout} />
           </motion.div>
         )}

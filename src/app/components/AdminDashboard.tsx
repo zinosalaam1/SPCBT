@@ -36,6 +36,8 @@ import * as userService from '../services/users';
 import * as attemptService from '../services/attempts';
 
 import { User, Question, Exam } from '../types';
+import { clearAuth } from '../services/auth';
+
 
 interface AdminDashboardProps {
   user: User;
@@ -101,7 +103,9 @@ export function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
       setQuestions(q);
       setExams(e);
       setStudents(u.filter((u: User) => u.role === 'student'));
-      setAttempts(Array.isArray(a) ? a : a?.attempts ?? []);
+      const normalizedAttempts = Array.isArray(a) ? a : a?.attempts ?? [];
+      setAttempts(normalizedAttempts);
+
 
     } catch (err) {
       console.error('Error loading data:', err);
@@ -334,11 +338,15 @@ const stats = {
                 <p className="text-sm text-gray-600">Welcome back, {user.name}</p>
               </div>
             </div>
-            <Button
-              onClick={onLogout}
-              variant="outline"
-              className="border-2 border-red-200 hover:bg-red-50 hover:border-red-300"
-            >
+           <Button
+          onClick={() => {
+          clearAuth();   // 🔥 clear token + user
+          onLogout();
+          }}
+          variant="outline"
+       className="border-2 border-red-200 hover:bg-red-50 hover:border-red-300"
+>
+
               <LogOut className="w-4 h-4 mr-2" />
               Logout
             </Button>
@@ -877,7 +885,6 @@ const stats = {
                           onClick={() => {
                             if (confirm('Are you sure you want to delete this exam?')) {
                               handleDeleteExam(exam._id);
-                              loadData();
                             }
                           }}
                           className="border-red-200 hover:bg-red-50"
@@ -1007,7 +1014,6 @@ const stats = {
                             onClick={() => {
                               if (confirm(`Delete student ${student.name}?`)) {
                                 handleDeleteStudent(student._id);
-                                loadData();
                               }
                             }}
                             className="border-red-200 hover:bg-red-50"
