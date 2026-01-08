@@ -2,15 +2,21 @@ import axios from 'axios';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  withCredentials: true, // ✅ REQUIRED
+  withCredentials: true,
 });
 
-// Attach token automatically
+// Attach token automatically (EXCEPT login/register)
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
-  if (token) {
+
+  if (
+    token &&
+    !config.url?.includes('/auth/login') &&
+    !config.url?.includes('/auth/register')
+  ) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
   return config;
 });
 
@@ -27,3 +33,5 @@ api.interceptors.response.use(
 );
 
 export default api;
+
+console.log('API URL:', import.meta.env.VITE_API_URL);
