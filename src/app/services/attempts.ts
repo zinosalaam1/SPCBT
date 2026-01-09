@@ -1,4 +1,5 @@
 import api from '../services/api';
+import axios from 'axios';
 
 /* ===============================
    Student submits an exam
@@ -20,10 +21,19 @@ export const getMyAttempts = async () => {
 /* ===============================
    ADMIN: get attempts for ONE student
 ================================ */
-export const getStudentAttempts = async (studentId: string) => {
-  const { data } = await api.get(`/attempts/student/${studentId}`);
-  return data.attempts;
+export const getStudentAttempts = (studentId?: string) => {
+  if (!studentId) {
+    console.error("getStudentAttempts called without studentId");
+    return Promise.resolve([]);
+  }
+
+  return axios
+    .get(`/api/attempts/student/${studentId}`, {
+      withCredentials: true,
+    })
+    .then(res => res.data);
 };
+
 
 /* ===============================
    ADMIN: get ALL attempts

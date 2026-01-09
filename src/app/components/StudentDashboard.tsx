@@ -29,13 +29,17 @@ import {
 } from '../services/exams';
 
 import {
-  getStudentAttempts,
+  getMyAttempts,
   createAttempt,
 } from '../services/attempts';
+
 
 import {
   getQuestionsByIds,
 } from '../services/questions';
+
+
+
 
 import { User, Exam, Question, ExamAttempt } from '../types';
 
@@ -82,9 +86,10 @@ const loadData = async () => {
   if (!user?._id) return;
 
   const [e, a] = await Promise.all([
-    getActiveExams(),
-    getStudentAttempts(user._id),
-  ]);
+  getActiveExams(),
+  getMyAttempts(),
+]);
+
 
   setExams(e);
   setAttempts(Array.isArray(a) ? a : []);
