@@ -57,8 +57,11 @@ export function StudentDashboard({ user, onLogout }: StudentDashboardProps) {
   const [isExamSubmitted, setIsExamSubmitted] = useState(false);
 
   useEffect(() => {
-    loadData().catch(console.error);
-  }, []);
+  if (!user?._id) return;
+
+  loadData().catch(console.error);
+}, [user?._id]);
+
 
   useEffect(() => {
     if (currentExam && timeRemaining > 0 && !isExamSubmitted) {
@@ -76,6 +79,8 @@ export function StudentDashboard({ user, onLogout }: StudentDashboardProps) {
   }, [currentExam, timeRemaining, isExamSubmitted]);
 
 const loadData = async () => {
+  if (!user?._id) return;
+
   const [e, a] = await Promise.all([
     getActiveExams(),
     getStudentAttempts(user._id),
@@ -84,6 +89,7 @@ const loadData = async () => {
   setExams(e);
   setAttempts(Array.isArray(a) ? a : []);
 };
+
 
 
 
