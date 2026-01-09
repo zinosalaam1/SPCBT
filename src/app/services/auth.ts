@@ -15,8 +15,14 @@ export const loginRequest = async (username: string, password: string) => {
 /* ---------------- STORAGE ---------------- */
 export const saveAuth = (token: string, user: any) => {
   localStorage.setItem('token', token);
-  localStorage.setItem('user', JSON.stringify(user));
+
+  if (user) {
+    localStorage.setItem('user', JSON.stringify(user));
+  } else {
+    localStorage.removeItem('user');
+  }
 };
+
 
 /* ---------------- SESSION ---------------- */
 export const getAuthUser = () => {
