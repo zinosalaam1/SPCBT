@@ -1,5 +1,4 @@
-import api from '../services/api';
-import axios from 'axios';
+import api from './api';
 
 /* ===============================
    Student submits an exam
@@ -11,7 +10,7 @@ export const createAttempt = async (payload: any) => {
 
 /* ===============================
    STUDENT: get own attempts
-   (ID comes from JWT, not URL)
+   (JWT-based)
 ================================ */
 export const getMyAttempts = async () => {
   const { data } = await api.get('/attempts/student');
@@ -21,19 +20,15 @@ export const getMyAttempts = async () => {
 /* ===============================
    ADMIN: get attempts for ONE student
 ================================ */
-export const getStudentAttempts = (studentId?: string) => {
+export const getStudentAttempts = async (studentId?: string) => {
   if (!studentId) {
-    console.error("getStudentAttempts called without studentId");
-    return Promise.resolve([]);
+    console.error('getStudentAttempts called without studentId');
+    return [];
   }
 
-  return axios
-    .get(`/api/attempts/student/${studentId}`, {
-      withCredentials: true,
-    })
-    .then(res => res.data);
+  const { data } = await api.get(`/attempts/student/${studentId}`);
+  return data.attempts;
 };
-
 
 /* ===============================
    ADMIN: get ALL attempts
