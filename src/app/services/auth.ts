@@ -26,8 +26,17 @@ export const saveAuth = (token: string, user: any) => {
 
 /* ---------------- SESSION ---------------- */
 export const getAuthUser = () => {
-  const user = localStorage.getItem('user');
-  return user ? JSON.parse(user) : null;
+  const raw = localStorage.getItem('user');
+
+  if (!raw || raw === "undefined") return null;
+
+  try {
+    return JSON.parse(raw);
+  } catch (error) {
+    console.error("Corrupted user data in storage:", raw);
+    localStorage.removeItem('user');
+    return null;
+  }
 };
 
 export const getToken = () => {
