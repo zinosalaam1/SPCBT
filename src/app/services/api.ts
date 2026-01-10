@@ -1,11 +1,23 @@
-import jwt from 'jsonwebtoken';
+import axios from 'axios';
 
-const generateToken = (id: string, role: string) => {
-  return jwt.sign(
-    { id, role },
-    process.env.JWT_SECRET!,
-    { expiresIn: '7d' }
-  );
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
+});
+
+export const saveAuth = (token: string) => {
+  localStorage.setItem('token', token);
 };
 
-export default generateToken;
+export const clearAuth = () => {
+  localStorage.removeItem('token');
+};
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+export default api;
