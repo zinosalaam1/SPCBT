@@ -175,6 +175,12 @@ const loadData = async () => {
   };
 
   const currentQuestion = examQuestions[currentQuestionIndex];
+  
+const loadData = async () => {
+  const e = await getActiveExams();
+  console.log('ACTIVE EXAMS:', e);
+  setExams(e);
+};
 
 
   return (
